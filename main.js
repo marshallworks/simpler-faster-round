@@ -1,6 +1,5 @@
 const STATE = {
   data: JSON.parse(document.getElementById('pokemon-data').textContent),
-  results: [],
   left: {
     id: 0,
     name: document.getElementById('name-left'),
@@ -18,6 +17,8 @@ const STATE = {
 };
 
 function vote(state, id) {
+  state.resultsTarget.classList.add('hide');
+  state.showResultsToggle.textContent = 'Show Results';
   if (id !== 0) {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', '/vote', true);
@@ -31,14 +32,14 @@ function vote(state, id) {
   }
   const leftId = Math.floor(Math.random() * state.data.length) + 1;
   const rightId = Math.floor(Math.random() * state.data.length) + 1;
-
   const left = state.data[leftId - 1];
   const right = state.data[rightId - 1];
-
   state.left.id = leftId;
   state.right.id = rightId;
   state.left.name.textContent = left[0];
   state.right.name.textContent = right[0];
+  state.left.img.alt = `A pixelated image of ${left[0]}.`;
+  state.right.img.alt = `A pixelated image of ${right[0]}.`;
   state.left.img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${leftId}.png`;
   state.right.img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${rightId}.png`;
 }
@@ -84,7 +85,7 @@ STATE.showResultsToggle.addEventListener('click', () => {
       const res = data[i];
       const poke = STATE.data[res[0] - 1];
       const total = res[2] + res[3];
-      const prop = total > 0 ? (res[2] / total) : 0;
+      const forProportion = total > 0 ? (res[2] / total) : 0;
       const row = document.createElement('div');
       const place = document.createElement('span');
       const img = document.createElement('img');
@@ -93,8 +94,9 @@ STATE.showResultsToggle.addEventListener('click', () => {
       row.className = 'row';
       place.textContent = `${i + 1}`;
       img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${res[0]}.png`;
+      img.alt = `A pixelated image of ${poke[0]}.`;
       name.textContent = poke[0];
-      percent.textContent = `${(prop * 100).toFixed(2)}% of ${total} votes`;
+      percent.textContent = `${(forProportion * 100).toFixed(2)}% of ${total} votes`;
       row.append(place, img, name, percent);
       target.append(row);
     }
